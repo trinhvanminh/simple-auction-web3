@@ -1,36 +1,49 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import React, { useState } from "react";
+import Web3 from "web3";
+import { ContractABI } from "./ContractABI";
+
 import "./App.css";
 
-import Button from "@components/Button";
+const web3 = new Web3(new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545"));
+web3.eth.defaultAccount = web3.eth.accounts[0];
+
+const RemixContract = new web3.eth.Contract(
+  ContractABI,
+  "0x1559348869e11944Afa1f02c8335be94f138eA74"
+);
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [message, setMessage] = useState("");
+
+  const setData = async (e) => {
+    e.preventDefault();
+    const accounts = await window.ethereum.enable();
+    const account = accounts[0];
+
+    const gas = await RemixContract.methods.endAuction().estimateGas();
+    const result = await RemixContract.methods
+      .endAuction()
+      .send({ from: account, gas });
+    console.log(result);
+  };
 
   return (
     <div className="App">
-      <Button />
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <header className="App-header">
+        <form onSubmit={setData}>
+          <label>
+            Set Message:
+            <input
+              type="text"
+              name="message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          </label>
+          <input type="submit" value="Set Message" />
+        </form>
+        <br />
+      </header>
     </div>
   );
 }
