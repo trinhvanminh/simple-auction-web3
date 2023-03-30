@@ -43,6 +43,7 @@ function App() {
     setBalance(result);
   };
 
+  // https://docs.metamask.io/guide/getting-started.html#basic-considerations
   const handleConnectAccount = async () => {
     if (window.ethereum) {
       const accounts = await window.ethereum.request({
